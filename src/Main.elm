@@ -8,8 +8,6 @@ import Http
 import Json.Decode exposing (..)
 
 ---- MODEL ----
-
-
 type alias Model = {
     tokenAndUrl: WebData TokenAndUrl }
 
@@ -21,15 +19,13 @@ init =
 
 
 ---- UPDATE ----
-
-
 type Msg
     = NoOp
     | FunctionResponse (WebData TokenAndUrl)
 
 type alias TokenAndUrl = {
-    token: String,
-    url: String }
+    vormi: String}
+    
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -49,13 +45,10 @@ callFunction =
 
 decodeTokenAndUrl : Decoder TokenAndUrl
 decodeTokenAndUrl =
-    Json.Decode.map2 TokenAndUrl
-        (field "api-token" Json.Decode.string)
-        (field "api-url" Json.Decode.string)
+    Json.Decode.map TokenAndUrl
+        (field "vormi" Json.Decode.string)
 
 ---- VIEW ----
-
-
 view : Model -> Html Msg
 view model =
     case model.tokenAndUrl of
@@ -66,16 +59,14 @@ view model =
             text "Loading."
             
         RemoteData.Failure err -> 
-            text "Error."
+            text "Error..."
 
         RemoteData.Success tokenAndUrl -> 
-            text ("Api Token: " ++ tokenAndUrl.token ++ ", Api Url: " ++ tokenAndUrl.url)
+            text ("Vormi: " ++ tokenAndUrl.vormi)
 
 
 
 ---- PROGRAM ----
-
-
 main : Program () Model Msg
 main =
     Browser.element

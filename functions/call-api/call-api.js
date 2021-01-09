@@ -3,11 +3,23 @@
 // const axios = require("axios");
 
 exports.handler = function(event, context, callback) {
-  // Get some env var values defined in our Netlify site UI
-  const { API_TOKEN, API_URL } = process.env;
 
-  // You can log some stuff here to aid  debugging
-  // console.log("Injecting token to", API_URL);
+  const vormiTapot = [
+    12,
+    14,
+    1,
+    1,
+    33,
+  ];
+  const paskaVormiTapot = [
+    1,
+    3,
+    1,
+    6,
+    7,
+  ];
+  
+  const palautettava = Date.now() % 2 == 1 ? vormiTapot : paskaVormiTapot;
 
   return callback(null, {
     statusCode: 200,
@@ -17,8 +29,8 @@ exports.handler = function(event, context, callback) {
       "access-control-expose-headers": "content-encoding,date,server,content-length"
     },
     body: JSON.stringify({
-      "api-token": API_TOKEN,
-      "api-url": API_URL
+      "vormi": palautettava == vormiTapot ? "ON VORMI" : "EI OO VORMIA",
+      "tapot": palautettava
     })
   })
 } 
