@@ -1,41 +1,86 @@
 module Main exposing (..)
 
--- Press buttons to increment and decrement a counter.
---
--- Read how it works:
---   https://guide.elm-lang.org/architecture/buttons.html
---
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
-import String exposing (slice)
+import Html exposing (Html, text, div, h1, img, p)
+import Html.Attributes exposing (src)
+import RemoteData exposing (WebData)
+import Http
+import Json.Decode exposing (..)
 
--- MAIN
-main : Program () Model Msg
-main =
-  Browser.sandbox { init = init, update = update, view = view }
+---- MODEL ----
 
--- MODEL
-type alias Model = String
 
-init : Model
+type alias Model = {
+    tokenAndUrl: WebData TokenAndUrl }
+
+
+init : ( Model, Cmd Msg )
 init =
-  ""
+    ( Model RemoteData.NotAsked, callFunction)
 
--- UPDATE
+
+
+---- UPDATE ----
+
+
 type Msg
-  = FetchVormi
+    = NoOp
+    | FunctionResponse (WebData TokenAndUrl)
 
-update : Msg -> Model -> Model
+type alias TokenAndUrl = {
+    token: String,
+    url: String }
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    FetchVormi ->
-      "No vittu onKÖ"
+    case msg of
+        FunctionResponse tokenAndUrl ->
+            ( { model | tokenAndUrl = tokenAndUrl }, Cmd.none)
+        _ ->
+            ( model, Cmd.none )
 
--- VIEW
+
+callFunction: Cmd Msg
+callFunction =
+    Http.get { 
+        expect = Http.expectJson (RemoteData.fromResult >> FunctionResponse) decodeTokenAndUrl,
+        url = ".netlify/functions/call-api" 
+    }
+
+decodeTokenAndUrl : Decoder TokenAndUrl
+decodeTokenAndUrl =
+    Json.Decode.map2 TokenAndUrl
+        (field "api-token" Json.Decode.string)
+        (field "api-url" Json.Decode.string)
+
+---- VIEW ----
+
+
 view : Model -> Html Msg
 view model =
-  div []
-    [ button [ onClick FetchVormi ] [ text "Kato onko Slerba vormissa" ]
-    , div [] [ text ( model) ]
-    ]
+    case model.tokenAndUrl of
+        RemoteData.NotAsked -> 
+            text "Initialising."
+
+        RemoteData.Loading -> 
+            text "Loading."
+            
+        RemoteData.Failure err -> 
+            text "Error."
+
+        RemoteData.Success tokenAndUrl -> 
+            text ("Api Token: " ++ tokenAndUrl.token ++ ", Api Url: " ++ tokenAndUrl.url)
+
+
+
+---- PROGRAM ----
+
+
+main : Program () Model Msg
+main =
+    Browser.element
+        { view = view
+        , init = \_ -> init
+        , update = update
+        , subscriptions = always Sub.none
+        }
