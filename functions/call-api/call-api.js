@@ -1,38 +1,45 @@
 // If you add things to the package.json in this directory, you can magically require them here
 // Netlify takes care of all the things
 // const axios = require("axios");
+const API = require('call-of-duty-api')({ platform: "psn" });
 
-exports.handler = function(event, context, callback) {
 
-  const vormiTapot = [
-    12,
-    14,
-    1,
-    1,
-    33,
-  ];
-  const paskaVormiTapot = [
-    1,
-    3,
-    1,
-    6,
-    7,
-  ];
+
+exports.handler = async (event, context, callback) => {
+
   
-  const palautettava = Date.now() % 2 == 1 ? vormiTapot : paskaVormiTapot;
-  const average = palautettava.reduce((sum, value)=> sum+value,0) / palautettava.length;
+  try {
+    await API.login("aremoro@gmail.com", "wMpab2x7SkybTYk");
+    
+    let data = await API.MWcombatwz("slerbatron33#4084536", "acti");
+    console.log("Hyvin män");
+    data.matches.forEach((match)=>{console.log(match.playerStats.kills, new Date(match.utcStartSeconds*1000+60*1000*60*2));});
 
-  return callback(null, {
-    statusCode: 200,
-    headers: { 
-      "content-type": "application/json; charset=UTF-8",
-      "access-control-allow-origin": "*",
-      "access-control-expose-headers": "content-encoding,date,server,content-length"
-    },
-    body: JSON.stringify({
-      "vormi": average >= 10 ? "ON VORMI" : "EI OO VORMIA",
-      "tapot": palautettava,
-      "keskiarvo" : average
+    const tapot = data.matches.map(match=>match.playerStats.kills).slice(0,5);
+    const average = tapot.reduce((sum, value)=> sum+value,0) / tapot.length;
+    return callback(null, {
+      statusCode: 200,
+      headers: { 
+        "content-type": "application/json; charset=UTF-8",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "content-encoding,date,server,content-length"
+      },
+      body: JSON.stringify({
+        "vormi": average >= 10 ? "ON VORMI" : "EI OO VORMIA",
+        "tapot": tapot,
+        "keskiarvo" : average,
+        "slerba": data.matches,
+      })
     })
-  })
+  } catch(Error) {
+    console.log("Vituiks män");
+    console.log(Error);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ msg: Error.message }) // Could be a custom message or object i.e. JSON.stringify(err)
+    }
+  }
+  
+  
 } 
