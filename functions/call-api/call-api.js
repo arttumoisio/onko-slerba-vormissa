@@ -20,6 +20,7 @@ exports.handler = function(event, context, callback) {
   ];
   
   const palautettava = Date.now() % 2 == 1 ? vormiTapot : paskaVormiTapot;
+  const average = palautettava.reduce((sum, value)=> sum+value,0) / palautettava.length;
 
   return callback(null, {
     statusCode: 200,
@@ -29,8 +30,9 @@ exports.handler = function(event, context, callback) {
       "access-control-expose-headers": "content-encoding,date,server,content-length"
     },
     body: JSON.stringify({
-      "vormi": palautettava == vormiTapot ? "ON VORMI" : "EI OO VORMIA",
-      "tapot": palautettava
+      "vormi": average >= 10 ? "ON VORMI" : "EI OO VORMIA",
+      "tapot": palautettava,
+      "keskiarvo" : average
     })
   })
 } 
