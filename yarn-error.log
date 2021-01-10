@@ -1,8 +1,8 @@
 Arguments: 
-  /usr/local/Cellar/node/15.5.1/bin/node /usr/local/Cellar/yarn/1.22.10/libexec/bin/yarn.js add @types/apollo
+  /usr/local/Cellar/node/15.5.1/bin/node /usr/local/Cellar/yarn/1.22.10/libexec/bin/yarn.js add encodimg
 
 PATH: 
-  /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/opt/X11/bin:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin:/Users/arttu/Library/Android/sdk/emulator:/Users/arttu/Library/Android/sdk/tools:/Users/arttu/Library/Android/sdk/tools/bin:/Users/arttu/Library/Android/sdk/platform-tools:/Users/arttu/bin:/Users/arttu/Library/Android/sdk/emulator:/Users/arttu/Library/Android/sdk/tools:/Users/arttu/Library/Android/sdk/tools/bin:/Users/arttu/Library/Android/sdk/platform-tools:/Users/arttu/bin
+  /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:/opt/X11/bin:~/.dotnet/tools:/Library/Apple/usr/bin:/Users/arttu/Library/Android/sdk/emulator:/Users/arttu/Library/Android/sdk/tools:/Users/arttu/Library/Android/sdk/tools/bin:/Users/arttu/Library/Android/sdk/platform-tools:/Users/arttu/bin
 
 Yarn version: 
   1.22.10
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@types%2fapollo: Not found
+  Error: https://registry.yarnpkg.com/encodimg: Not found
       at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:66988:18)
       at Request.self.callback (/usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:140749:22)
       at Request.emit (node:events:376:20)
@@ -34,7 +34,7 @@ npm manifest:
       "main": "src/Main.elm",
       "scripts": {
           "build": "elm-app build && netlify-lambda build functions",
-          "start": "elm-app start",
+          "start": "NODE_ENV=development && elm-app start",
           "test": "elm-app test"
       },
       "prettier": {
