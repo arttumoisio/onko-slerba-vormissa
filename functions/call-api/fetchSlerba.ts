@@ -21,20 +21,24 @@ const roundToTwo = (num: number): number => {
 export const fetchWZData = async(): Promise<WZData> =>{
     await API.login("aremoro@gmail.com", "wMpab2x7SkybTYk");
       
+    // return await API.MWcombatwz("kyntö#1293018", "acti");
     return await API.MWcombatwz("slerbatron33#4084536", "acti");
 }
 
 export const fetchSlerba = (data: WZData) => { 
 
-    const tapot: number[] = data.matches.map(match=>match.playerStats.kills).slice(0,5);
+    const matches = data.matches.slice(0,5);
+
+    const tapot: number[] = matches.map(match=>match.playerStats.kills);
     const average: number = countAverage(tapot);
 
-    const kuolemat: number[] = data.matches.map(match=>match.playerStats.deaths).slice(0,5);
+    const kuolemat: number[] = matches.map(match=>match.playerStats.deaths);
     const ratio: number = countRatio(tapot,kuolemat);
 
     return {
         "vormi": average >= 10 ? "ON VORMI" : "EI OO VORMIA",
         "tapot": tapot,
+        "kuolemat": kuolemat,
         "keskiarvo" : average,
         "kd": ratio,
       }

@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, text, div, h1, img, p)
+import Html exposing (Html, text, div, h1, img, p, ul, li)
 import Html.Attributes exposing (src)
 import RemoteData exposing (WebData)
 import Http
@@ -26,6 +26,7 @@ type Msg
 type alias TokenAndUrl = {
     vormi: String,
     tapot: List Int,
+    kuolemat: List Int,
     keskiarvo: Float,
     kd: Float
     }
@@ -49,9 +50,10 @@ callFunction =
 
 decodeTokenAndUrl : Decoder TokenAndUrl
 decodeTokenAndUrl =
-    Json.Decode.map4 TokenAndUrl
+    Json.Decode.map5 TokenAndUrl
         (field "vormi" Json.Decode.string)
         (field "tapot" (Json.Decode.list Json.Decode.int))
+        (field "kuolemat" (Json.Decode.list Json.Decode.int))
         (field "keskiarvo" Json.Decode.float)
         (field "kd" Json.Decode.float)
 
@@ -75,7 +77,16 @@ page : TokenAndUrl -> Html Msg
 page tokenAndUrl = 
     div [] [
                 div [] [
-                    text ("Vormi: " ++ tokenAndUrl.vormi)
+                    text ("Vormi: ")
+                ],
+                div [] [
+                    text " "
+                ],
+                div [] [
+                    text (tokenAndUrl.vormi)
+                ],
+                div [] [
+                    text " "
                 ],
                 div [] [
                     text "Viimeisten viiden pelin statsit:"
@@ -86,18 +97,26 @@ page tokenAndUrl =
                 div [] [
                     text (" K/D: " ++ String.fromFloat tokenAndUrl.kd)
                 ],
-                div [] (
-                    [div [] [text ("Tapot:" )]]
-                    ++ listTapot tokenAndUrl.tapot)
+                div [] [
+                    text ("Tapot:" )
+                ],
+                ul [] (
+                    listTapot tokenAndUrl.tapot)
+                ,
+                div [] [
+                    text ("Kuolemat" )
+                ],
+                ul [] (
+                    listTapot tokenAndUrl.kuolemat)
             ]
 
 listTapot : List Int -> List (Html Msg)
 listTapot tapot = 
-    List.map tappoElem tapot
+    List.map tappoElem tapot 
 
 tappoElem : Int -> Html msg
 tappoElem tappo = 
-   div [] [text (String.fromInt tappo )] 
+   li [] [text (String.fromInt tappo )] 
 
 
 ---- PROGRAM ----
