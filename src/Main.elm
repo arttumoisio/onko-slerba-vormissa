@@ -6,6 +6,7 @@ import Html.Attributes exposing (src)
 import RemoteData exposing (WebData)
 import Http
 import Json.Decode exposing (..)
+import Array exposing (Array)
 
 ---- MODEL ----
 type alias Model = {
@@ -17,14 +18,17 @@ init =
     ( Model RemoteData.NotAsked, callFunction)
 
 
-
 ---- UPDATE ----
 type Msg
     = NoOp
     | FunctionResponse (WebData TokenAndUrl)
 
 type alias TokenAndUrl = {
-    vormi: String}
+    vormi: String,
+    tapot: List Int,
+    keskiarvo: Float,
+    kd: Float
+    }
     
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -45,24 +49,40 @@ callFunction =
 
 decodeTokenAndUrl : Decoder TokenAndUrl
 decodeTokenAndUrl =
-    Json.Decode.map TokenAndUrl
+    Json.Decode.map4 TokenAndUrl
         (field "vormi" Json.Decode.string)
+        (field "tapot" (Json.Decode.list Json.Decode.int))
+        (field "keskiarvo" Json.Decode.float)
+        (field "kd" Json.Decode.float)
 
 ---- VIEW ----
 view : Model -> Html Msg
 view model =
     case model.tokenAndUrl of
         RemoteData.NotAsked -> 
-            text "Initialising."
+            div [] [text "Initialising."]
 
         RemoteData.Loading -> 
-            text "Loading."
+            div [] [text "Loading."]
             
         RemoteData.Failure err -> 
-            text "Error..."
+            div [] [text "Error..."]
 
         RemoteData.Success tokenAndUrl -> 
-            text ("Vormi: " ++ tokenAndUrl.vormi)
+            div [] [
+                div [] [
+                    text ("Vormi: " ++ tokenAndUrl.vormi)
+                ],
+                div [] [
+                    text "Viimeisten viiden pelin statsit:"
+                ],
+                div [] [
+                    text (" Keskiarvo: " ++ String.fromFloat tokenAndUrl.keskiarvo)
+                ],
+                div [] [
+                    text (" K/D: " ++ String.fromFloat tokenAndUrl.kd)
+                ]
+            ]
 
 
 
