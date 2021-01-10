@@ -69,7 +69,11 @@ view model =
             div [] [text "Error..."]
 
         RemoteData.Success tokenAndUrl -> 
-            div [] [
+            page tokenAndUrl
+            
+page : TokenAndUrl -> Html Msg
+page tokenAndUrl = 
+    div [] [
                 div [] [
                     text ("Vormi: " ++ tokenAndUrl.vormi)
                 ],
@@ -81,9 +85,19 @@ view model =
                 ],
                 div [] [
                     text (" K/D: " ++ String.fromFloat tokenAndUrl.kd)
-                ]
+                ],
+                div [] (
+                    [div [] [text ("Tapot:" )]]
+                    ++ listTapot tokenAndUrl.tapot)
             ]
 
+listTapot : List Int -> List (Html Msg)
+listTapot tapot = 
+    List.map tappoElem tapot
+
+tappoElem : Int -> Html msg
+tappoElem tappo = 
+   div [] [text (String.fromInt tappo )] 
 
 
 ---- PROGRAM ----
