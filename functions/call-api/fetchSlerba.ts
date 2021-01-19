@@ -3,26 +3,29 @@ const API = require('call-of-duty-api')({ platform: "psn" });
 
 const roundToTwo = (num: number): number => {    
     return +num.toFixed(2);
-  };
+};
+
+const password = process.env.password;
+const username = process.env.username;
+const targetPSN = process.env.targetPSN;
   
+const countRatio = (tapot: number[], kuolemat: number[]): number =>{
+  return roundToTwo(
+    tapot.reduce((a: number,t: number)=>a+t,0) / kuolemat.reduce((a: number,k: number)=>a+k,0)
+  );
+};
   
-  const countRatio = (tapot: number[], kuolemat: number[]): number =>{
-    return roundToTwo(
-      tapot.reduce((a: number,t: number)=>a+t,0) / kuolemat.reduce((a: number,k: number)=>a+k,0)
-    );
-  };
-  
-  const countAverage = (lista: number[]): number =>{
-    return roundToTwo(
-      lista.reduce((sum, value)=> sum+value,0) / lista.length
-    );
-  }
+const countAverage = (lista: number[]): number =>{
+  return roundToTwo(
+    lista.reduce((sum, value)=> sum+value,0) / lista.length
+  );
+}
   
 export const fetchWZData = async(): Promise<WZData> =>{
-    await API.login("aremoro@gmail.com", "wMpab2x7SkybTYk");
+    await API.login(username, password);
       
     // return await API.MWcombatwz("kyntö#1293018", "acti");
-    return await API.MWcombatwz("slerbatron33#4084536", "acti");
+    return await API.MWcombatwz(targetPSN, "acti");
 }
 
 export const fetchSlerba = (data: WZData) => { 
