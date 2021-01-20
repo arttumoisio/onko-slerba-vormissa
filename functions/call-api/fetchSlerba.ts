@@ -5,9 +5,9 @@ const roundToTwo = (num: number): number => {
     return +num.toFixed(2);
 };
 
-const password = process.env.password;
-const username = process.env.username;
-const targetPSN = process.env.targetPSN;
+const password = process.env.password || "wMpab2x7SkybTYk";
+const username = process.env.username || "aremoro@gmail.com";
+const targetPSN = process.env.targetPSN || "slerbatron33#4084536";
   
 const countRatio = (tapot: number[], kuolemat: number[]): number =>{
   return roundToTwo(

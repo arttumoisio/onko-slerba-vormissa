@@ -1,8 +1,8 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, text, div, h1, img, p, ul, li)
-import Html.Attributes exposing (src)
+import Html exposing (Html, text, div, ul, li)
+import Html.Attributes exposing (class)
 import RemoteData exposing (WebData)
 import Http
 import Json.Decode exposing (..)
@@ -10,7 +10,8 @@ import Array exposing (Array)
 
 ---- MODEL ----
 type alias Model = {
-    tokenAndUrl: WebData TokenAndUrl }
+    tokenAndUrl: WebData TokenAndUrl 
+    }
 
 
 init : ( Model, Cmd Msg )
@@ -72,42 +73,30 @@ view model =
 
         RemoteData.Success tokenAndUrl -> 
             page tokenAndUrl
-            
+
+textBlock : String -> Html msg
+textBlock string = div [] [text string] 
+
 page : TokenAndUrl -> Html Msg
 page tokenAndUrl = 
     div [] [
-                div [] [
-                    text ("Vormi: ")
+                div [] 
+                [ textBlock ("Vormi: ")
+                , textBlock (tokenAndUrl.vormi)
+                , textBlock "Viimeisten viiden pelin statsit:"
+                , textBlock (" Keskiarvo: " ++ String.fromFloat tokenAndUrl.keskiarvo)
+                , textBlock (" K/D: " ++ String.fromFloat tokenAndUrl.kd)
                 ],
-                div [] [
-                    text " "
-                ],
-                div [] [
-                    text (tokenAndUrl.vormi)
-                ],
-                div [] [
-                    text " "
-                ],
-                div [] [
-                    text "Viimeisten viiden pelin statsit:"
-                ],
-                div [] [
-                    text (" Keskiarvo: " ++ String.fromFloat tokenAndUrl.keskiarvo)
-                ],
-                div [] [
-                    text (" K/D: " ++ String.fromFloat tokenAndUrl.kd)
-                ],
-                div [] [
-                    text ("Tapot:" )
-                ],
-                ul [] (
-                    listTapot tokenAndUrl.tapot)
-                ,
-                div [] [
-                    text ("Kuolemat" )
-                ],
-                ul [] (
-                    listTapot tokenAndUrl.kuolemat)
+                div [ class "box"] 
+                [ div [class "flexList"] 
+                    [ text ("Tapot:" )
+                    , ul [] (listTapot tokenAndUrl.tapot)
+                    ],
+                  div [class "flexList"] 
+                    [ text ("Kuolemat:" )
+                    , ul [] (listTapot tokenAndUrl.kuolemat)
+                    ]
+                ]
             ]
 
 listTapot : List Int -> List (Html Msg)
