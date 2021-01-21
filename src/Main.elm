@@ -155,7 +155,7 @@ page wzData =
             , flexIntElem "Imetyt damaget:" wzData.otetut
             , flexIntElem "Gulag tapot:" wzData.gulagKills
             , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
-            , flexStringElem "Mode:" wzData.mode
+            -- , flexStringElem "Mode:" wzData.mode
             ]
     ]
 flexStringElem : String -> List String -> Html Msg
