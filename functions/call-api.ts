@@ -15,9 +15,7 @@ export const handler = async (
     
     printDebug(data);
     const returnObject = fetchSlerba(data);
-    console.log(returnObject);
     
-
     return {
       statusCode: 200,
       headers: headers,

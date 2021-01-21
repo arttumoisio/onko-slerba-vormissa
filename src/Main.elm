@@ -37,6 +37,7 @@ type alias WZData =
     , otetut: List Int
     , gulagKills: List Int
     , gulagDeaths: List Int
+    , mode: List String
     }
 
 type alias WZDataFields = 
@@ -49,6 +50,7 @@ type alias WZDataFields =
     , otetut: String
     , gulagKills: String
     , gulagDeaths: String
+    , mode: String
     }
 
 
@@ -64,6 +66,7 @@ constFields =
         "otetut"
         "gulagKills"
         "gulagDeaths"
+        "mode"
     
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -94,6 +97,7 @@ decodeWZData =
         |> required constFields.otetut (list int)
         |> required constFields.gulagKills (list int)
         |> required constFields.gulagDeaths (list int)
+        |> required constFields.mode (list string)
 
 ---- VIEW ----
 view : Model -> Html Msg
@@ -145,15 +149,24 @@ page wzData =
             ]
         , br [] []
         , div [ class "box"] 
-            [ flexElem "Tapot:" wzData.tapot
-            , flexElem "Kuolemat:" wzData.kuolemat
-            , flexElem "Damaget:" wzData.damaget
-            , flexElem "Imetyt damaget:" wzData.otetut
+            [ flexIntElem "Tapot:" wzData.tapot
+            , flexIntElem "Kuolemat:" wzData.kuolemat
+            , flexIntElem "Damaget:" wzData.damaget
+            , flexIntElem "Imetyt damaget:" wzData.otetut
+            , flexIntElem "Gulag tapot:" wzData.gulagKills
+            , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
+            , flexStringElem "Mode:" wzData.mode
             ]
     ]
+flexStringElem : String -> List String -> Html Msg
+flexStringElem otsikko data = 
+    div [class "flexList"] 
+        [ text otsikko
+        , ul [] <| List.map (\n -> li [] [text n] ) data
+        ]
 
-flexElem : String -> List Int -> Html Msg
-flexElem otsikko data =
+flexIntElem : String -> List Int -> Html Msg
+flexIntElem otsikko data =
     div [class "flexList"] 
         [ text otsikko
         , ul [] <| listAndAverageAndMax data
@@ -197,7 +210,7 @@ averageOfList list =
   
 tappoElem : Int -> Html msg
 tappoElem tappo = 
-   li [] [text (String.fromInt tappo )] 
+   li [] [ text (String.fromInt tappo )] 
 
 
 ---- PROGRAM ----

@@ -10,7 +10,8 @@ const roundToTwo = (num: number): number => {
 const password = process.env.password || "wMpab2x7SkybTYk";
 const username = process.env.username || "aremoro@gmail.com";
 const targetPSN = process.env.targetPSN || "slerbatron33#4084536";
-  
+// const targetPSN = process.env.targetPSN || "kyntö#1293018";
+
 const countRatio = (tapot: number[], kuolemat: number[]) =>{
   return roundToTwo(
     tapot.reduce((a,t)=>a+t,0) / kuolemat.reduce((a,k)=>a+k,0)
@@ -25,8 +26,7 @@ const countAverage = (lista: number[]) =>{
   
 export const fetchWZData = async(): Promise<WZData> =>{
     await API.login(username, password);
-      
-    // return await API.MWcombatwz("kyntö#1293018", "acti");
+    
     return await API.MWcombatwz(targetPSN, "acti");
 }
 
@@ -35,26 +35,30 @@ export const fetchSlerba = (data: WZData) => {
     const matches = data.matches.slice();
 
     const tapot: number[] = matches.map(match=>match.playerStats.kills);
-    const average: number = countAverage(tapot);
+    const keskiarvo: number = countAverage(tapot);
 
     const kuolemat: number[] = matches.map(match=>match.playerStats.deaths);
-    const ratio: number = countRatio(tapot,kuolemat);
+    const kd: number = countRatio(tapot,kuolemat);
     
     const damaget: number[] = matches.map(match=>match.playerStats.damageDone);
     const otetut: number[] = matches.map(match=>match.playerStats.damageTaken);
 
     const gulagKills: number[] = matches.map(match=>match.playerStats.gulagKills);
-    const gulagDeaths: number[] = matches.map(match=>match.playerStats.gulagDeaths);
-
+    const gulagDeaths: number[] = matches.map(match=>match.playerStats.gulagDeaths > 1 ? 1 : match.playerStats.gulagDeaths);
+    
+    const mode: string[] = matches.map(match=>match.mode);
+    console.log(mode);
+    
     return {
-        vormi: average >= 10 ? "ON VORMI" : "EI OO VORMIA",
+        vormi: keskiarvo >= 10 ? "ON VORMI" : "EI OO VORMIA",
         tapot,
         kuolemat,
-        keskiarvo : average,
-        kd: ratio,
+        keskiarvo,
+        kd,
         damaget,
         otetut,
         gulagKills,
         gulagDeaths,
+        mode,
       }
 };
