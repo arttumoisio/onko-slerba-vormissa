@@ -1,4 +1,4 @@
-import { WZMatch } from "./fetchSlerba";
+import { WZMatch } from "./interfaces";
 
 export const printDebug = (data: {matches: WZMatch[]}) => {
     data.matches.forEach((match: WZMatch)=>{

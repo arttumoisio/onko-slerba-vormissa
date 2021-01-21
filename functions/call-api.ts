@@ -1,7 +1,8 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { headers } from "./call-api/headers";
-import { WZMatch, WZData, fetchSlerba, fetchWZData } from "./call-api/fetchSlerba";
+import { fetchSlerba, fetchWZData } from "./call-api/fetchSlerba";
 import { printDebug } from "./call-api/debugger";
+
 
 export const handler = async (
   event: APIGatewayEvent,
@@ -14,6 +15,8 @@ export const handler = async (
     
     printDebug(data);
     const returnObject = fetchSlerba(data);
+    console.log(returnObject);
+    
 
     return {
       statusCode: 200,
