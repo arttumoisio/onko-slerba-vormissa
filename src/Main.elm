@@ -1,20 +1,23 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, text, div, ul, li)
+import Html exposing (button, Html, text, div, ul, li)
 import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import RemoteData exposing (WebData)
 import Http
 import Json.Decode as Decode exposing (Decoder, float, string, list, int)
 import Json.Decode.Pipeline exposing (required)
 import Html exposing (br)
 import List exposing (sum)
+import Round
 
 ---- MODEL ----
 type alias Model = {
     wzData: WebData WZData,
     someOtherVal: String
     }
+
 
 
 init : ( Model, Cmd Msg )
@@ -75,7 +78,7 @@ update msg model =
         FunctionResponse wzData ->
             ( { model | wzData = wzData }, Cmd.none)
         FetchMoreData ->
-            ( model, Cmd.none )
+            ( { model | wzData = RemoteData.Loading } , callFunction )
 
 
 callFunction: Cmd Msg
@@ -128,6 +131,14 @@ lenToString list =
         20 -> "parinkytä"
         _ -> ""
 
+
+precentageOfTwoLists: List Int -> List Int -> String
+precentageOfTwoLists eka toka =
+    let
+        sum = toFloat <| List.sum eka
+        tot = toFloat <| List.sum eka + List.sum toka
+    in
+    Round.round 1 (100 * sum / tot)
 fractionOfTwoLists: List Int -> List Int -> String
 fractionOfTwoLists eka toka =
     let
@@ -146,6 +157,7 @@ page wzData =
             , textBlock (" Keskiarvo: " ++ String.fromFloat wzData.keskiarvo)
             , textBlock (" K/D: " ++ String.fromFloat wzData.kd)
             , textBlock (" Gulagit: " ++ fractionOfTwoLists wzData.gulagKills wzData.gulagDeaths)
+            , textBlock (" Gulag-%: " ++ precentageOfTwoLists wzData.gulagKills wzData.gulagDeaths)
             ]
         , br [] []
         , div [ class "box"] 
@@ -157,7 +169,10 @@ page wzData =
             -- , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
             -- , flexStringElem "Mode:" wzData.mode
             ]
+        , button [ onClick FetchMoreData] [ text "Päivitä"]
     ]
+
+
 flexStringElem : String -> List String -> Html Msg
 flexStringElem otsikko data = 
     div [class "flexList"] 

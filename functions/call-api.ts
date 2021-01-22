@@ -13,8 +13,10 @@ export const handler = async (
     const data = await fetchWZData();
     console.log("Hyvin män");
     
-    printDebug(data);
     const returnObject = fetchSlerba(data);
+
+    console.log(Object.keys(returnObject));
+    
     
     return {
       statusCode: 200,

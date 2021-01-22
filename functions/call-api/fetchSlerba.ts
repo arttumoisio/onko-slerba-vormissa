@@ -23,6 +23,7 @@ const countAverage = (lista: number[]) =>{
     lista.reduce((sum, value)=> sum+value,0) / lista.length
   );
 }
+
   
 export const fetchWZData = async(): Promise<WZData> =>{
     await API.login(username, password);
@@ -30,24 +31,25 @@ export const fetchWZData = async(): Promise<WZData> =>{
     return await API.MWcombatwz(targetPSN, "acti");
 }
 
+const valueOrZero = (value: number) => value ? value : 0;
+const maxOneOrZero = (value: number) => value > 1 ? 1 : valueOrZero(value);
 export const fetchSlerba = (data: WZData) => { 
     
     const matches = data.matches.slice();
 
-    const tapot: number[] = matches.map(match=>match.playerStats.kills);
+    const tapot: number[] = matches.map(match=>valueOrZero(match.playerStats.kills));
     const keskiarvo: number = countAverage(tapot);
 
-    const kuolemat: number[] = matches.map(match=>match.playerStats.deaths);
+    const kuolemat: number[] = matches.map(match=>valueOrZero(match.playerStats.deaths));
     const kd: number = countRatio(tapot,kuolemat);
     
-    const damaget: number[] = matches.map(match=>match.playerStats.damageDone);
-    const otetut: number[] = matches.map(match=>match.playerStats.damageTaken);
+    const damaget: number[] = matches.map(match=>valueOrZero(match.playerStats.damageDone));
+    const otetut: number[] = matches.map(match=>valueOrZero(match.playerStats.damageTaken));
 
-    const gulagKills: number[] = matches.map(match=>match.playerStats.gulagKills);
-    const gulagDeaths: number[] = matches.map(match=>match.playerStats.gulagDeaths > 1 ? 1 : match.playerStats.gulagDeaths);
+    const gulagKills: number[] = matches.map(match=>maxOneOrZero(match.playerStats.gulagKills));
+    const gulagDeaths: number[] = matches.map(match=>maxOneOrZero(match.playerStats.gulagDeaths));
     
     const mode: string[] = matches.map(match=>match.mode);
-    console.log(mode);
     
     return {
         vormi: keskiarvo >= 10 ? "ON VORMI" : "EI OO VORMIA",
