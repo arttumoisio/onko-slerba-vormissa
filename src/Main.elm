@@ -153,8 +153,8 @@ page wzData =
             , flexIntElem "Kuolemat:" wzData.kuolemat
             , flexIntElem "Damaget:" wzData.damaget
             , flexIntElem "Imetyt damaget:" wzData.otetut
-            , flexIntElem "Gulag tapot:" wzData.gulagKills
-            , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
+            -- , flexIntElem "Gulag tapot:" wzData.gulagKills
+            -- , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
             -- , flexStringElem "Mode:" wzData.mode
             ]
     ]
