@@ -13,9 +13,9 @@ import List exposing (sum)
 import Round
 
 ---- MODEL ----
-type alias Model = {
-    wzData: WebData WZData,
-    someOtherVal: String
+type alias Model = 
+    { wzData: WebData WZData
+    , someOtherVal: String
     }
 
 
@@ -165,9 +165,9 @@ page wzData =
             , flexIntElem "Kuolemat:" wzData.kuolemat
             , flexIntElem "Damaget:" wzData.damaget
             , flexIntElem "Imetyt damaget:" wzData.otetut
-            -- , flexIntElem "Gulag tapot:" wzData.gulagKills
-            -- , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
-            -- , flexStringElem "Mode:" wzData.mode
+            , flexIntElem "Gulag tapot:" wzData.gulagKills
+            , flexIntElem "Gulag kuolemat:" wzData.gulagDeaths
+            , flexStringElem "Mode:" wzData.mode
             ]
         , button [ onClick FetchMoreData] [ text "Päivitä"]
     ]
@@ -188,7 +188,7 @@ flexIntElem otsikko data =
         ]
 
 listAndAverageAndMax : List Int -> List (Html Msg)
-listAndAverageAndMax data = listTapot data ++ liAverage data ++ liMax data
+listAndAverageAndMax data = listTapot data ++ liAverage data ++ liMax data ++ liMin data
 
 listTapot : List Int -> List (Html Msg)
 listTapot tapot = 
@@ -199,6 +199,12 @@ liMax data =
     [ text "Max:"
     , li [] [text <| String.fromInt <| maxOfList data]
     ]
+
+liMin : List Int -> List (Html Msg)
+liMin data = 
+    [ text "Min:"
+    , li [] [text <| String.fromInt <| minOfList data]
+    ]
 liAverage : List Int -> List(Html Msg)
 liAverage data = 
     [ text "Avg:"
@@ -206,11 +212,14 @@ liAverage data =
     ]
 
 maxOfList : List Int -> Int
-maxOfList list = 
-    let
-        max = List.maximum list
-    in
-    case max of
+maxOfList list =
+    case List.maximum list of
+       Maybe.Nothing -> 0
+       Maybe.Just m -> m
+       
+minOfList : List Int -> Int
+minOfList list =
+    case List.minimum list of
        Maybe.Nothing -> 0
        Maybe.Just m -> m
 averageOfList : List Int -> Float

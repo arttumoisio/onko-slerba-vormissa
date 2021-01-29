@@ -1,5 +1,6 @@
 export interface WZData {
     matches: WZMatch[];
+    summary: {};
 };
   
 export interface WZMatch {
@@ -58,7 +59,7 @@ export interface WZWeapon {
     imageLoot: null;
     imageIcon: null;
     variant: number;
-attachments: [];
+    attachments: [];
 };
 
 export interface WZbrMissionStats {
@@ -67,3 +68,4 @@ export interface WZbrMissionStats {
     totalMissionWeaponXpEarned: number;
     missionStatsByType: {};
 };
+

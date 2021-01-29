@@ -9,8 +9,10 @@ const roundToTwo = (num: number): number => {
 
 const password = process.env.password || "wMpab2x7SkybTYk";
 const username = process.env.username || "aremoro@gmail.com";
+const targetPlatform = process.env.targetPlatform || "acti";
 const targetPSN = process.env.targetPSN || "slerbatron33#4084536";
-// const targetPSN = process.env.targetPSN || "kyntö#1293018";
+// const targetPSN = "kyntö#1293018";
+// const targetPSN = "kupperi";
 
 const countRatio = (tapot: number[], kuolemat: number[]) =>{
   return roundToTwo(
@@ -27,15 +29,23 @@ const countAverage = (lista: number[]) =>{
   
 export const fetchWZData = async(): Promise<WZData> =>{
     await API.login(username, password);
+    console.log(targetPSN);
     
-    return await API.MWcombatwz(targetPSN, "acti");
+    return await API.MWcombatwz(targetPSN, targetPlatform);
 }
 
 const valueOrZero = (value: number) => value ? value : 0;
-const maxOneOrZero = (value: number) => value > 1 ? 1 : valueOrZero(value);
-export const fetchSlerba = (data: WZData) => { 
+const maxOneOrZero = (value: number) => {
+  const retVal = value > 1 ? 1 : valueOrZero(value);
+  console.log("val:",value,"ret:",retVal);
+  return retVal;
+};
+  export const fetchSlerba = (data: WZData) => { 
     
     const matches = data.matches.slice();
+
+    console.log(Object.keys(data.summary));
+    
 
     const tapot: number[] = matches.map(match=>valueOrZero(match.playerStats.kills));
     const keskiarvo: number = countAverage(tapot);
@@ -47,9 +57,18 @@ export const fetchSlerba = (data: WZData) => {
     const otetut: number[] = matches.map(match=>valueOrZero(match.playerStats.damageTaken));
 
     const gulagKills: number[] = matches.map(match=>maxOneOrZero(match.playerStats.gulagKills));
+    console.log(" ");
+    
     const gulagDeaths: number[] = matches.map(match=>maxOneOrZero(match.playerStats.gulagDeaths));
     
     const mode: string[] = matches.map(match=>match.mode);
+
+    
+    const posi: number[] = matches.map(match=>valueOrZero(match.player.rank));
+    console.log(posi);
+    const posiP: number[] = matches.map(match=>valueOrZero(match.playerStats.rank));
+    console.log(posiP);
+    
     
     return {
         vormi: keskiarvo >= 10 ? "ON VORMI" : "EI OO VORMIA",
@@ -62,5 +81,7 @@ export const fetchSlerba = (data: WZData) => {
         gulagKills,
         gulagDeaths,
         mode,
+        posiP,
+        posi,
       }
 };
