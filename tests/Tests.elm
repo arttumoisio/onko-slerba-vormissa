@@ -1,22 +1,56 @@
 module Tests exposing (..)
 
-import Test exposing (..)
 import Expect
+import Main exposing (..)
+import Test exposing (..)
+
 
 
 -- Check out https://package.elm-lang.org/packages/elm-explorations/test/latest to learn more about testing in Elm!
 
 
-all : Test
-all =
-    describe "A Test Suite"
-        [ test "Addition" <|
+gulagSuccess : Test
+gulagSuccess =
+    describe "gulagSuccess"
+        [ test "Fraction of two lists emptys" <|
             \_ ->
-                Expect.equal 10 (3 + 7)
-        , test "String.left" <|
+                Expect.equal "0/0" (gulagSuccessString [] [])
+        , test "Fraction of two lists error" <|
             \_ ->
-                Expect.equal "a" (String.left 1 "abcdefg")
-        , test "This test should fail" <|
+                Expect.equal "Gulagissa virhe" (gulagSuccessString [ 0 ] [])
+        , test "Fraction of two lists zeros" <|
             \_ ->
-                Expect.fail "failed as expected!"
+                Expect.equal "0/1" (gulagSuccessString [ 0 ] [ 0 ])
+        , test "Fraction of two lists ones" <|
+            \_ ->
+                Expect.equal "1/1" (gulagSuccessString [ 1 ] [ 1 ])
+        , test "Fraction of two lists" <|
+            \_ ->
+                Expect.equal "12/20"
+                    (gulagSuccessString
+                        [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ]
+                        [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 ]
+                    )
+        , test "Fraction of two lists improved" <|
+            \_ ->
+                Expect.equal "14/20"
+                    (gulagSuccessString
+                        [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ]
+                        [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 ]
+                    )
+        ]
+
+
+averageOfListTest : Test
+averageOfListTest =
+    describe "averge of list"
+        [ test "Simple list" <|
+            \_ ->
+                averageOfList [ 1, 2 ] |> Expect.within (Expect.Absolute 0.0000001) 1.5
+        , test "Average of two lists emptys" <|
+            \_ ->
+                isNaN (averageOfList []) |> Expect.true "Expect the value to be NaN"
+        , test "Longer list" <|
+            \_ ->
+                averageOfList [ 2, 2, 2, 2, 2 ] |> Expect.within (Expect.Absolute 0.0000001) 2
         ]

@@ -18,6 +18,7 @@ export const handler = async (
     console.log(Object.keys(returnObject));
     
     
+    
     return {
       statusCode: 200,
       headers: headers,

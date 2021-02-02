@@ -4,7 +4,7 @@ import Browser
 import Html exposing (Html, br, button, div, li, text, ul)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Http
+import Http exposing (Error(..))
 import Json.Decode as Decode exposing (Decoder, float, int, list, string)
 import Json.Decode.Pipeline exposing (required)
 import List exposing (sum)
@@ -125,11 +125,36 @@ view model =
         RemoteData.Loading ->
             div [] [ text "Loading..." ]
 
-        RemoteData.Failure _ ->
-            div [] [ text "Error..." ]
+        RemoteData.Failure err ->
+            div [] [ text <| errorToString err ]
 
         RemoteData.Success wzData ->
             page wzData
+
+
+errorToString : Http.Error -> String
+errorToString error =
+    case error of
+        BadUrl url ->
+            "The URL " ++ url ++ " was invalid"
+
+        Timeout ->
+            "Unable to reach the server, try again"
+
+        NetworkError ->
+            "Unable to reach the server, check your network connection"
+
+        BadStatus 500 ->
+            "The server had a problem, try again later"
+
+        BadStatus 400 ->
+            "Verify your information and try again"
+
+        BadStatus _ ->
+            "Unknown error"
+
+        BadBody errorMessage ->
+            errorMessage
 
 
 textBlock : String -> Html msg
@@ -146,6 +171,15 @@ lenToString list =
     case len of
         5 ->
             "viiden"
+
+        17 ->
+            "seittemäntoista"
+
+        18 ->
+            "kaheksantoista"
+
+        19 ->
+            "yheksäntoista"
 
         20 ->
             "parinkytä"
@@ -166,16 +200,20 @@ precentageOfTwoLists eka toka =
     Round.round 1 (100 * sum / tot)
 
 
-fractionOfTwoLists : List Int -> List Int -> String
-fractionOfTwoLists eka toka =
-    let
-        sum =
-            List.sum eka
+gulagSuccessString : List Int -> List Int -> String
+gulagSuccessString eka toka =
+    if List.length eka /= List.length toka then
+        "Gulagissa virhe"
 
-        tot =
-            List.sum eka + List.sum toka
-    in
-    String.fromInt sum ++ "/" ++ String.fromInt tot
+    else
+        let
+            sum =
+                List.sum eka
+
+            tot =
+                List.length eka
+        in
+        String.fromInt sum ++ "/" ++ String.fromInt tot
 
 
 page : WZData -> Html Msg
@@ -187,7 +225,7 @@ page wzData =
             , textBlock <| "Viimeisten " ++ lenToString wzData.gulagDeaths ++ " pelin statsit:"
             , textBlock (" Keskiarvo: " ++ String.fromFloat wzData.keskiarvo)
             , textBlock (" K/D: " ++ String.fromFloat wzData.kd)
-            , textBlock (" Gulagit: " ++ fractionOfTwoLists wzData.gulagKills wzData.gulagDeaths)
+            , textBlock (" Gulagit: " ++ gulagSuccessString wzData.gulagKills wzData.gulagDeaths)
             , textBlock (" Gulag-%: " ++ precentageOfTwoLists wzData.gulagKills wzData.gulagDeaths)
             ]
         , br [] []
@@ -247,7 +285,7 @@ liMin data =
 liAverage : List Int -> List (Html Msg)
 liAverage data =
     [ text "Avg:"
-    , li [] [ text <| String.fromFloat <| averageOfList data ]
+    , li [] [ text <| Round.round 2 <| averageOfList data ]
     ]
 
 
