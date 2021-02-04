@@ -52,9 +52,6 @@ update msg model =
 
                 newUser =
                     { activeUser | fetched = Fetched }
-
-                _ =
-                    Debug.log (toString model)
             in
             ( { model | wzData = wzData, activeUser = newUser }, Cmd.none )
 
