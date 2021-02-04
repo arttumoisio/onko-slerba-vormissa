@@ -39,18 +39,3 @@ gulagSuccess =
                         [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 ]
                     )
         ]
-
-
-averageOfListTest : Test
-averageOfListTest =
-    describe "averge of list"
-        [ test "Simple list" <|
-            \_ ->
-                averageOfList [ 1, 2 ] |> Expect.within (Expect.Absolute 0.0000001) 1.5
-        , test "Average of two lists emptys" <|
-            \_ ->
-                isNaN (averageOfList []) |> Expect.true "Expect the value to be NaN"
-        , test "Longer list" <|
-            \_ ->
-                averageOfList [ 2, 2, 2, 2, 2 ] |> Expect.within (Expect.Absolute 0.0000001) 2
-        ]

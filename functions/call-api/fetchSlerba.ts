@@ -1,17 +1,11 @@
 const API = require("call-of-duty-api")({ platform: "psn" });
 
-import { WZData, WZMatch } from "./interfaces";
+import { password, targetPlatform, targetPSN, username } from "./constants";
+import { IAvailableUsers, WZData, WZMatch } from "./interfaces";
 
 const roundToTwo = (num: number): number => {
   return +num.toFixed(2);
 };
-
-const password = process.env.password || "wMpab2x7SkybTYk";
-const username = process.env.username || "aremoro@gmail.com";
-const targetPlatform = process.env.targetPlatform || "acti";
-const targetPSN = process.env.targetPSN || "slerbatron33#4084536";
-// const targetPSN = "kyntö#1293018";
-// const targetPSN = "kupperi";
 
 const countRatio = (tapot: number[], kuolemat: number[]) => {
   return roundToTwo(
@@ -25,21 +19,15 @@ const countAverage = (lista: number[]) => {
   );
 };
 
-export const fetchWZData = async (): Promise<WZData> => {
+export const fetchWZData = async (target: string): Promise<WZData> => {
   await API.login(username, password);
-  console.log(targetPSN);
+  console.log("Target", target);
 
-  return await API.MWcombatwz(targetPSN, targetPlatform);
+  return await API.MWcombatwz(target, targetPlatform);
 };
 
-const playedMatch = (match: WZMatch) => {
-  console.log(
-    "Kills and deaths:",
-    match.playerStats.kills,
-    match.playerStats.deaths
-  );
-  return !(match.playerStats.kills == 0 && match.playerStats.deaths == 0);
-};
+const playedMatch = (match: WZMatch) =>
+  !(match.playerStats.kills == 0 && match.playerStats.deaths == 0);
 
 const valueOrZero = (value: number) => (value ? value : 0);
 const maxOneOrZero = (value: number) => {
@@ -47,7 +35,8 @@ const maxOneOrZero = (value: number) => {
   console.log("val:", value, "ret:", retVal);
   return retVal;
 };
-export const fetchSlerba = (data: WZData) => {
+
+export const fetchSlerba = (data: WZData, target: string) => {
   const matches = data.matches.filter(playedMatch).slice();
 
   console.log(Object.keys(data.summary));
@@ -72,20 +61,12 @@ export const fetchSlerba = (data: WZData) => {
   const gulagKills: number[] = matches.map((match) =>
     maxOneOrZero(match.playerStats.gulagKills)
   );
-  console.log(" ");
 
   const gulagDeaths: number[] = matches.map((match) =>
     maxOneOrZero(match.playerStats.gulagDeaths)
   );
 
   const mode: string[] = matches.map((match) => match.mode);
-
-  const posi: number[] = matches.map((match) => valueOrZero(match.player.rank));
-  console.log(posi);
-  const posiP: number[] = matches.map((match) =>
-    valueOrZero(match.playerStats.rank)
-  );
-  console.log(posiP);
 
   return {
     vormi: keskiarvo >= 10 ? "ON VORMI" : "EI OO VORMIA",
@@ -98,7 +79,7 @@ export const fetchSlerba = (data: WZData) => {
     gulagKills,
     gulagDeaths,
     mode,
-    posiP,
-    posi,
+    user: target,
+    defaultUser: targetPSN,
   };
 };

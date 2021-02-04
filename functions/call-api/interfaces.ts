@@ -43,6 +43,20 @@ export interface WZPlayer {
   loadout: WZLoadout[];
 }
 
+export type IAvailableUsers =
+  | "Slerba"
+  | "Kyntö"
+  | "Hojo"
+  | "Kupperi"
+  | undefined;
+
+export enum AvailableUsersValue {
+  Slerba = "slerbatron33#4084536",
+  Kyntö = "kyntö#1293018",
+  Hojo = "hojozza#2398418",
+  Kupperi = "kupperi#3370706",
+}
+
 export enum Mode {
   Solos = "br_brsolos",
   Duos = "br_brduos",

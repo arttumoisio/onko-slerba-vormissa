@@ -1,16 +1,19 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { headers } from "./call-api/headers";
 import { fetchSlerba, fetchWZData } from "./call-api/fetchSlerba";
-import { printDebug } from "./call-api/debugger";
+import { targetPSN } from "./call-api/constants";
 
 export const handler = async (_event: APIGatewayEvent, _context: Context) => {
+  const user = _event.queryStringParameters?.user || targetPSN;
+
   try {
-    const data = await fetchWZData();
+    const data = await fetchWZData(user);
+
+    const returnObject = fetchSlerba(data, user);
     console.log("Hyvin män");
-
-    const returnObject = fetchSlerba(data);
-
     console.log(Object.keys(returnObject));
+    console.log(returnObject.user);
+    console.log("User", user);
 
     return {
       statusCode: 200,
