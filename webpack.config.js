@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 module.exports = {
   module: {
     rules: [
@@ -12,6 +10,5 @@ module.exports = {
         },
       },
     ],
-    plugins: [new webpack.EnvironmentPlugin(["targetPSN"])],
   },
 };

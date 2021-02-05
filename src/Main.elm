@@ -25,28 +25,24 @@ type alias Model =
     { wzData : WebData WZData
     , allData : WebData WZDataDict
     , activeUser : User
-    , flag : String
     }
 
 
-init : Flags -> ( Model, Cmd Msg )
-init flags =
-    ( initialModel flags, callFunction )
+init : ( Model, Cmd Msg )
+init =
+    ( initialModel, callFunction )
 
 
-initialModel : Flags -> Model
-initialModel flag =
+initialModel : Model
+initialModel =
     Model
         RemoteData.NotAsked
         RemoteData.NotAsked
-        (case List.filter (\u -> u.user == flag) users of
-            [] ->
-                User "alku" "alku#123" NotFetched
-
-            x :: _ ->
-                x
+        (User
+            ""
+            ""
+            NotFetched
         )
-        flag
 
 
 initialDict : Dict String (WebData WZData)
@@ -233,7 +229,7 @@ view model =
             div [] [ text <| errorToString err ]
 
         RemoteData.Success wzData ->
-            page wzData model.activeUser model.flag
+            page wzData model.activeUser
 
 
 errorToString : Http.Error -> String
@@ -294,18 +290,15 @@ gulagSuccessString eka toka =
         String.fromInt sum ++ "/" ++ String.fromInt tot
 
 
-page : WZData -> User -> String -> Html Msg
-page wzData activeUser flag =
+page : WZData -> User -> Html Msg
+page wzData activeUser =
     div []
         [ headerSelection activeUser
         , upperData wzData
         , br [] []
         , dataTaulukko wzData
+        , br [] []
         , button [ onClick FetchMoreData ] [ text "Päivitä" ]
-        , br [] []
-        , text <| "Active: " ++ activeUser.user
-        , br [] []
-        , text <| "Flag: " ++ flag
         ]
 
 
@@ -432,19 +425,15 @@ tappoElem tappo =
     li [] [ text (String.fromInt tappo) ]
 
 
-type alias Flags =
-    String
-
-
 
 ---- PROGRAM ----
 
 
-main : Program Flags Model Msg
+main : Program () Model Msg
 main =
     Browser.element
         { view = view
-        , init = \flags -> init flags
+        , init = \_ -> init
         , update = update
         , subscriptions = always Sub.none
         }

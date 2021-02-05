@@ -5,7 +5,6 @@ import { targetPSN } from "../constants/constants";
 
 Elm.Main.init({
   node: document.getElementById("root"),
-  flags: targetPSN,
 });
 
 // If you want your app to work offline and load faster, you can change
