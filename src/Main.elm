@@ -25,6 +25,7 @@ type alias Model =
     { wzData : WebData WZData
     , allData : WebData WZDataDict
     , activeUser : User
+    , flag : String
     }
 
 
@@ -34,17 +35,18 @@ init flags =
 
 
 initialModel : Flags -> Model
-initialModel flags =
+initialModel flag =
     Model
         RemoteData.NotAsked
         RemoteData.NotAsked
-        (case List.filter (\u -> u.user == flags) users of
+        (case List.filter (\u -> u.user == flag) users of
             [] ->
-                User "Kupperi" "kupperi#3370706" NotFetched
+                User "alku" "alku#123" NotFetched
 
             x :: _ ->
                 x
         )
+        flag
 
 
 initialDict : Dict String (WebData WZData)
@@ -231,7 +233,7 @@ view model =
             div [] [ text <| errorToString err ]
 
         RemoteData.Success wzData ->
-            page wzData model.activeUser
+            page wzData model.activeUser model.flag
 
 
 errorToString : Http.Error -> String
@@ -292,8 +294,8 @@ gulagSuccessString eka toka =
         String.fromInt sum ++ "/" ++ String.fromInt tot
 
 
-page : WZData -> User -> Html Msg
-page wzData activeUser =
+page : WZData -> User -> String -> Html Msg
+page wzData activeUser flag =
     div []
         [ headerSelection activeUser
         , upperData wzData
@@ -301,6 +303,9 @@ page wzData activeUser =
         , dataTaulukko wzData
         , button [ onClick FetchMoreData ] [ text "Päivitä" ]
         , br [] []
+        , text <| "Active: " ++ activeUser.user
+        , br [] []
+        , text <| "Flag: " ++ flag
         ]
 
 
@@ -443,12 +448,3 @@ main =
         , update = update
         , subscriptions = always Sub.none
         }
-
-
-exampleData : String
-exampleData =
-    """
-        { "slerbatron33#4084536":{"vormi":"EI OO VORMIA","tapot":[14,5,17,12,4,3,3,15,14,7,12,1,15,14,7,10,7,13],"kuolemat":[1,3,2,2,2,2,3,2,2,3,1,2,1,2,1,4,2,8],"damaget":[5616,2682,6404,4742,1299,1263,772,5323,6022,2777,5162,457,7273,4741,2736,4081,2618,3621],"otetut":[817,761,1172,492,492,356,756,731,1005,844,605,370,627,320,202,1347,813,1714],"gulagKills":[0,0,1,0,1,1,0,1,1,0,1,1,0,0,0,1,1,0],"gulagDeaths":[0,1,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,0],"mode":["br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brtrios","br_rebirth_rbrthtrios","br_brtrios","br_brtrios","br_brtrios","br_brduos","br_brtrios","br_brtrios","br_brtrios","br_dmz_plnbld"],"defaultUser":"slerbatron33#4084536"}
-        , "hojozza#2398418"     :{"vormi":"EI OO VORMIA","tapot":[7,0,1,6,9,8,0,3,2,10,2,1,3,4,1,2,1,7,6,5],"kuolemat":[1,2,2,2,1,2,2,2,3,2,3,1,6,5,3,1,2,2,4,2],"damaget":[2773,493,745,2375,2066,3008,282,1721,1838,3339,951,293,1926,1525,509,1304,276,2655,2302,1992],"otetut":[791,351,547,449,186,655,774,688,908,758,1023,265,850,1413,776,341,557,715,1096,597],"gulagKills":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],"gulagDeaths":[0,1,1,1,0,1,1,1,1,1,1,0,0,0,1,0,1,1,1,0],"mode":["br_brtrios","br_brtrios","br_brtrios","br_brbbquad","br_dmz_plnbld","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_dmz_plnbld","br_dmz_plnbld","br_brtrios","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brduos"],"defaultUser":"slerbatron33#4084536"}
-        }
-    """
