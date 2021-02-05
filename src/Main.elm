@@ -57,11 +57,32 @@ type Msg
     | FunctionResponse (WebData WZData)
     | FetchAllDataResponse (WebData WZDataDict)
     | ChangeActive User
+    | SetDefaultUser (WebData String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        SetDefaultUser defaultUserResponse ->
+            case defaultUserResponse of
+                RemoteData.Success userString ->
+                    let
+                        activeUser =
+                            model.activeUser
+
+                        newUser =
+                            case List.filter (\u -> u.user == userString) users of
+                                [] ->
+                                    activeUser
+
+                                x :: _ ->
+                                    x
+                    in
+                    ( { model | activeUser = newUser }, callFunctionAllUsers users )
+
+                _ ->
+                    ( model, Cmd.none )
+
         ChangeFunctionResponse wzData ->
             let
                 activeUser =
@@ -90,7 +111,7 @@ update msg model =
                 newUser =
                     { activeUser | fetched = Fetched }
             in
-            ( { model | wzData = wzData, activeUser = newUser }, callFunctionAllUsers users )
+            ( { model | wzData = wzData, activeUser = newUser }, callFunctionDefaultUser )
 
         FetchMoreData ->
             ( { model | wzData = RemoteData.Loading }, callFunctionWUser model.activeUser )
@@ -151,6 +172,15 @@ callFunctionAllUsers users =
         { expect = Http.expectJson (RemoteData.fromResult >> FetchAllDataResponse) decodeWZDataDict
         , url =
             relative [ ".netlify", "functions", "karmiva-vitutus" ] <| List.map (\user -> UrlBuilder.string "users" user.user) users
+        }
+
+
+callFunctionDefaultUser : Cmd Msg
+callFunctionDefaultUser =
+    Http.get
+        { expect = Http.expectJson (RemoteData.fromResult >> SetDefaultUser) string
+        , url =
+            relative [ ".netlify", "functions", "default-user" ] []
         }
 
 
