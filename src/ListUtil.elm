@@ -108,6 +108,12 @@ lenToString list =
         5 ->
             "viiden"
 
+        15 ->
+            "viidentoista"
+
+        16 ->
+            "kuudentoista"
+
         17 ->
             "seittemäntoista"
 

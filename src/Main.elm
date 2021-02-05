@@ -22,21 +22,19 @@ import Users exposing (Status(..), User, users)
 
 
 type alias Model =
-    { wzData : WebData WZData
-    , allData : WebData WZDataDict
+    { allData : WebData WZDataDict
     , activeUser : User
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( initialModel, callFunction )
+    ( initialModel, callFunctionDefaultUser )
 
 
 initialModel : Model
 initialModel =
     Model
-        RemoteData.NotAsked
         RemoteData.NotAsked
         (User
             ""
@@ -56,9 +54,6 @@ initialDict =
 
 type Msg
     = FetchMoreData
-    | ChangeFunctionResponse (WebData WZData)
-    | RefreshFunctionResponse (WebData WZData)
-    | FunctionResponse (WebData WZData)
     | FetchAllDataResponse (WebData WZDataDict)
     | ChangeActive User
     | SetDefaultUser (WebData String)
@@ -67,107 +62,39 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SetDefaultUser defaultUserResponse ->
-            case defaultUserResponse of
-                RemoteData.Success userString ->
-                    let
-                        activeUser =
-                            model.activeUser
-
-                        newUser =
-                            case List.filter (\u -> u.user == userString) users of
-                                [] ->
-                                    activeUser
-
-                                x :: _ ->
-                                    x
-                    in
-                    ( { model | activeUser = newUser }, callFunctionAllUsers users )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        ChangeFunctionResponse wzData ->
-            let
-                activeUser =
-                    model.activeUser
-
-                newUser =
-                    { activeUser | fetched = Fetched }
-            in
-            ( { model | wzData = wzData, activeUser = newUser }, Cmd.none )
-
-        RefreshFunctionResponse wzData ->
-            let
-                activeUser =
-                    model.activeUser
-
-                newUser =
-                    { activeUser | fetched = Fetched }
-            in
-            ( { model | wzData = wzData, activeUser = newUser }, callFunctionAllUsers users )
-
-        FunctionResponse wzData ->
-            let
-                activeUser =
-                    model.activeUser
-
-                newUser =
-                    { activeUser | fetched = Fetched }
-            in
-            ( { model | wzData = wzData, activeUser = newUser }, callFunctionDefaultUser )
-
         FetchMoreData ->
-            ( { model | wzData = RemoteData.Loading }, callFunctionWUser model.activeUser )
+            ( model, callFunctionAllUsers users )
 
         FetchAllDataResponse newAllData ->
             ( { model | allData = newAllData }, Cmd.none )
 
         ChangeActive newUser ->
-            case model.allData of
-                RemoteData.Success allData ->
-                    let
-                        newData =
-                            Dict.get newUser.user allData
+            ( { model | activeUser = newUser }, Cmd.none )
 
-                        newClenedData =
-                            case newData of
-                                Maybe.Nothing ->
-                                    model.wzData
-
-                                Just val ->
-                                    RemoteData.Success val
-                    in
-                    ( { model | activeUser = newUser, wzData = newClenedData }, Cmd.none )
-
-                _ ->
-                    ( { model | activeUser = newUser, wzData = RemoteData.Loading }, callFunctionWUser newUser )
+        SetDefaultUser defaultUserResponse ->
+            processDefaultUserResponseMsg defaultUserResponse model
 
 
-callFunction : Cmd Msg
-callFunction =
-    Http.get
-        { expect = Http.expectJson (RemoteData.fromResult >> FunctionResponse) decodeWZData
-        , url = relative [ ".netlify", "functions", "call-api" ] []
-        }
+processDefaultUserResponseMsg : WebData String -> Model -> ( Model, Cmd Msg )
+processDefaultUserResponseMsg res model =
+    case res of
+        RemoteData.Success userString ->
+            let
+                activeUser =
+                    model.activeUser
 
+                newUser =
+                    case List.filter (\u -> u.user == userString) users of
+                        [] ->
+                            activeUser
 
-callFunctionWUser : User -> Cmd Msg
-callFunctionWUser user =
-    Http.get
-        { expect = Http.expectJson (RemoteData.fromResult >> ChangeFunctionResponse) decodeWZData
-        , url =
-            relative [ ".netlify", "functions", "call-api" ] [ UrlBuilder.string "user" user.user ]
-        }
+                        x :: _ ->
+                            x
+            in
+            ( { model | activeUser = newUser }, callFunctionAllUsers users )
 
-
-callFunctionWUserRefresh : User -> Cmd Msg
-callFunctionWUserRefresh user =
-    Http.get
-        { expect = Http.expectJson (RemoteData.fromResult >> RefreshFunctionResponse) decodeWZData
-        , url =
-            relative [ ".netlify", "functions", "call-api" ] [ UrlBuilder.string "user" user.user ]
-        }
+        _ ->
+            ( model, Cmd.none )
 
 
 callFunctionAllUsers : List User -> Cmd Msg
@@ -212,7 +139,7 @@ decodeWZData =
 
 view : Model -> Html Msg
 view model =
-    case model.wzData of
+    case model.allData of
         RemoteData.NotAsked ->
             div []
                 [ headerSelection model.activeUser
@@ -228,8 +155,13 @@ view model =
         RemoteData.Failure err ->
             div [] [ text <| errorToString err ]
 
-        RemoteData.Success wzData ->
-            page wzData model.activeUser
+        RemoteData.Success wzDataDict ->
+            case Dict.get model.activeUser.user wzDataDict of
+                Maybe.Nothing ->
+                    text "Error"
+
+                Just wzData ->
+                    page wzData model.activeUser
 
 
 errorToString : Http.Error -> String
