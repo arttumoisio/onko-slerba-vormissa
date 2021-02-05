@@ -1,7 +1,7 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { headers } from "./call-api/headers";
 import { fetchAll, fetchSlerba, fetchWZData } from "./call-api/fetchSlerba";
-import { targetPSN } from "./call-api/constants";
+import { targetPSN } from "../constants/constants";
 import { Karmivat } from "./call-api/interfaces";
 
 const API = require("call-of-duty-api")({ platform: "psn" });

@@ -28,17 +28,23 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( initialModel, callFunction )
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( initialModel flags, callFunction )
 
 
-initialModel : Model
-initialModel =
+initialModel : Flags -> Model
+initialModel flags =
     Model
         RemoteData.NotAsked
         RemoteData.NotAsked
-        (User "Slerba" "slerbatron33#4084536" NotFetched)
+        (case List.filter (\u -> u.user == flags) users of
+            [] ->
+                User "Kupperi" "kupperi#3370706" NotFetched
+
+            x :: _ ->
+                x
+        )
 
 
 initialDict : Dict String (WebData WZData)
@@ -421,15 +427,19 @@ tappoElem tappo =
     li [] [ text (String.fromInt tappo) ]
 
 
+type alias Flags =
+    String
+
+
 
 ---- PROGRAM ----
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
         { view = view
-        , init = \_ -> init
+        , init = \flags -> init flags
         , update = update
         , subscriptions = always Sub.none
         }

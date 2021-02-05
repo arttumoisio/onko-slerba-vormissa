@@ -1,6 +1,6 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { headers } from "./call-api/headers";
-import { targetPSN } from "./call-api/constants";
+import { targetPSN } from "../constants/constants";
 
 export const handler = async (_event: APIGatewayEvent, _context: Context) => {
   try {

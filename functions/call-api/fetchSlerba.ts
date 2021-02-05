@@ -1,4 +1,4 @@
-import { password, targetPlatform, username } from "./constants";
+import { password, targetPlatform, username } from "../../constants/constants";
 import { WZData, WZMatch } from "./interfaces";
 
 const roundToTwo = (num: number): number => {
