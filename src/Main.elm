@@ -53,6 +53,7 @@ initialDict =
 type Msg
     = FetchMoreData
     | ChangeFunctionResponse (WebData WZData)
+    | RefreshFunctionResponse (WebData WZData)
     | FunctionResponse (WebData WZData)
     | FetchAllDataResponse (WebData WZDataDict)
     | ChangeActive User
@@ -70,6 +71,16 @@ update msg model =
                     { activeUser | fetched = Fetched }
             in
             ( { model | wzData = wzData, activeUser = newUser }, Cmd.none )
+
+        RefreshFunctionResponse wzData ->
+            let
+                activeUser =
+                    model.activeUser
+
+                newUser =
+                    { activeUser | fetched = Fetched }
+            in
+            ( { model | wzData = wzData, activeUser = newUser }, callFunctionAllUsers users )
 
         FunctionResponse wzData ->
             let
@@ -120,6 +131,15 @@ callFunctionWUser : User -> Cmd Msg
 callFunctionWUser user =
     Http.get
         { expect = Http.expectJson (RemoteData.fromResult >> ChangeFunctionResponse) decodeWZData
+        , url =
+            relative [ ".netlify", "functions", "call-api" ] [ UrlBuilder.string "user" user.user ]
+        }
+
+
+callFunctionWUserRefresh : User -> Cmd Msg
+callFunctionWUserRefresh user =
+    Http.get
+        { expect = Http.expectJson (RemoteData.fromResult >> RefreshFunctionResponse) decodeWZData
         , url =
             relative [ ".netlify", "functions", "call-api" ] [ UrlBuilder.string "user" user.user ]
         }
