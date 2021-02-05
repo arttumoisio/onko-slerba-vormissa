@@ -1,19 +1,20 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { headers } from "./call-api/headers";
-import { fetchSlerba, fetchWZData } from "./call-api/fetchSlerba";
+import { fetchAll, fetchSlerba, fetchWZData } from "./call-api/fetchSlerba";
 import { targetPSN } from "./call-api/constants";
+import { Karmivat } from "./call-api/interfaces";
 
 const API = require("call-of-duty-api")({ platform: "psn" });
 
 export const handler = async (_event: APIGatewayEvent, _context: Context) => {
-  const user = _event.queryStringParameters?.user || targetPSN;
+  const users = _event.multiValueQueryStringParameters?.users || Karmivat;
 
   try {
-    const data = await fetchWZData(user, API);
+    const dataList = await fetchAll(users, API);
 
-    const returnObject = fetchSlerba(data);
-    console.log("Hyvin män");
-    console.log("User", user);
+    const returnObject: object = dataList.reduce((dict, elem) => {
+      return { ...dict, [elem.user]: elem.data };
+    }, {});
 
     return {
       statusCode: 200,

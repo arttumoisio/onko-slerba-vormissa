@@ -1,10 +1,14 @@
 module ApiFields exposing (..)
 
+import Dict exposing (Dict)
+
+
+type alias WZDataDict =
+    Dict String WZData
+
 
 type alias WZData =
     { vormi : String
-    , keskiarvo : Float
-    , kd : Float
     , tapot : List Int
     , kuolemat : List Int
     , damaget : List Int
@@ -17,13 +21,16 @@ type alias WZData =
 
 constWZData : WZData
 constWZData =
-    WZData "" 0 0 [] [] [] [] [] [] []
+    WZData "" [] [] [] [] [] [] []
+
+
+constWZDataDict : WZDataDict
+constWZDataDict =
+    Dict.singleton "a" constWZData
 
 
 type alias WZDataFields =
     { vormi : String
-    , keskiarvo : String
-    , kd : String
     , tapot : String
     , kuolemat : String
     , damaget : String
@@ -37,8 +44,6 @@ type alias WZDataFields =
 constFields : WZDataFields
 constFields =
     { vormi = "vormi"
-    , keskiarvo = "keskiarvo"
-    , kd = "kd"
     , tapot = "tapot"
     , kuolemat = "kuolemat"
     , damaget = "damaget"

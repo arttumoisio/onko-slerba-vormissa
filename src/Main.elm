@@ -1,13 +1,13 @@
 module Main exposing (..)
 
-import ApiFields exposing (WZData, constFields)
+import ApiFields exposing (WZData, WZDataDict, constFields)
 import Browser
-import Debug exposing (toString)
+import Dict exposing (Dict)
 import Html exposing (Html, br, button, div, li, text, ul)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Http exposing (Error(..))
-import Json.Decode as Decode exposing (Decoder, float, int, list, string)
+import Json.Decode as Decode exposing (Decoder, dict, int, list, string)
 import Json.Decode.Pipeline exposing (required)
 import List exposing (sum)
 import ListUtil
@@ -23,13 +23,27 @@ import Users exposing (Status(..), User, users)
 
 type alias Model =
     { wzData : WebData WZData
+    , allData : WebData WZDataDict
     , activeUser : User
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model RemoteData.NotAsked (User "Slerba" "slerbatron33#4084536" NotFetched), callFunction )
+    ( initialModel, callFunction )
+
+
+initialModel : Model
+initialModel =
+    Model
+        RemoteData.NotAsked
+        RemoteData.NotAsked
+        (User "Slerba" "slerbatron33#4084536" NotFetched)
+
+
+initialDict : Dict String (WebData WZData)
+initialDict =
+    Dict.empty
 
 
 
@@ -38,14 +52,16 @@ init =
 
 type Msg
     = FetchMoreData
+    | ChangeFunctionResponse (WebData WZData)
     | FunctionResponse (WebData WZData)
+    | FetchAllDataResponse (WebData WZDataDict)
     | ChangeActive User
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        FunctionResponse wzData ->
+        ChangeFunctionResponse wzData ->
             let
                 activeUser =
                     model.activeUser
@@ -55,11 +71,41 @@ update msg model =
             in
             ( { model | wzData = wzData, activeUser = newUser }, Cmd.none )
 
+        FunctionResponse wzData ->
+            let
+                activeUser =
+                    model.activeUser
+
+                newUser =
+                    { activeUser | fetched = Fetched }
+            in
+            ( { model | wzData = wzData, activeUser = newUser }, callFunctionAllUsers users )
+
         FetchMoreData ->
             ( { model | wzData = RemoteData.Loading }, callFunctionWUser model.activeUser )
 
+        FetchAllDataResponse newAllData ->
+            ( { model | allData = newAllData }, Cmd.none )
+
         ChangeActive newUser ->
-            ( { model | activeUser = newUser, wzData = RemoteData.Loading }, callFunctionWUser newUser )
+            case model.allData of
+                RemoteData.Success allData ->
+                    let
+                        newData =
+                            Dict.get newUser.user allData
+
+                        newClenedData =
+                            case newData of
+                                Maybe.Nothing ->
+                                    model.wzData
+
+                                Just val ->
+                                    RemoteData.Success val
+                    in
+                    ( { model | activeUser = newUser, wzData = newClenedData }, Cmd.none )
+
+                _ ->
+                    ( { model | activeUser = newUser, wzData = RemoteData.Loading }, callFunctionWUser newUser )
 
 
 callFunction : Cmd Msg
@@ -73,18 +119,30 @@ callFunction =
 callFunctionWUser : User -> Cmd Msg
 callFunctionWUser user =
     Http.get
-        { expect = Http.expectJson (RemoteData.fromResult >> FunctionResponse) decodeWZData
+        { expect = Http.expectJson (RemoteData.fromResult >> ChangeFunctionResponse) decodeWZData
         , url =
             relative [ ".netlify", "functions", "call-api" ] [ UrlBuilder.string "user" user.user ]
         }
+
+
+callFunctionAllUsers : List User -> Cmd Msg
+callFunctionAllUsers users =
+    Http.get
+        { expect = Http.expectJson (RemoteData.fromResult >> FetchAllDataResponse) decodeWZDataDict
+        , url =
+            relative [ ".netlify", "functions", "karmiva-vitutus" ] <| List.map (\user -> UrlBuilder.string "users" user.user) users
+        }
+
+
+decodeWZDataDict : Decoder WZDataDict
+decodeWZDataDict =
+    dict decodeWZData
 
 
 decodeWZData : Decoder WZData
 decodeWZData =
     Decode.succeed WZData
         |> required constFields.vormi string
-        |> required constFields.keskiarvo float
-        |> required constFields.kd float
         |> required constFields.tapot (list int)
         |> required constFields.kuolemat (list int)
         |> required constFields.damaget (list int)
@@ -104,7 +162,7 @@ view model =
         RemoteData.NotAsked ->
             div []
                 [ headerSelection model.activeUser
-                , text "Initialising."
+                , text <| "Initialising " ++ model.activeUser.short ++ "."
                 ]
 
         RemoteData.Loading ->
@@ -182,13 +240,11 @@ page : WZData -> User -> Html Msg
 page wzData activeUser =
     div []
         [ headerSelection activeUser
-        , br [] []
         , upperData wzData
         , br [] []
         , dataTaulukko wzData
         , button [ onClick FetchMoreData ] [ text "Päivitä" ]
         , br [] []
-        , selectedHighlight activeUser.short
         ]
 
 
@@ -233,11 +289,21 @@ upperData wzData =
         [ textBlock "Vormi: "
         , textBlock wzData.vormi
         , textBlock <| "Viimeisten " ++ ListUtil.lenToString wzData.gulagDeaths ++ " pelin statsit:"
-        , textBlock (" Keskiarvo: " ++ String.fromFloat wzData.keskiarvo)
-        , textBlock (" K/D: " ++ String.fromFloat wzData.kd)
-        , textBlock (" Gulagit: " ++ gulagSuccessString wzData.gulagKills wzData.gulagDeaths)
-        , textBlock (" Gulag-%: " ++ precentageOfTwoLists wzData.gulagKills wzData.gulagDeaths)
+        , roundedAverageElem wzData.tapot
+        , roundedKDElem wzData.tapot wzData.kuolemat
+        , textBlock <| " Gulagit: " ++ gulagSuccessString wzData.gulagKills wzData.gulagDeaths
+        , textBlock <| " Gulag-%: " ++ precentageOfTwoLists wzData.gulagKills wzData.gulagDeaths
         ]
+
+
+roundedAverageElem : List Int -> Html msg
+roundedAverageElem list =
+    textBlock <| " Keskiarvo: " ++ (Round.round 2 <| ListUtil.average list)
+
+
+roundedKDElem : List Int -> List Int -> Html msg
+roundedKDElem list1 list2 =
+    textBlock <| " K/D: " ++ (Round.round 2 <| ListUtil.kd list1 list2)
 
 
 dataTaulukko : WZData -> Html Msg
@@ -271,7 +337,7 @@ flexIntElem otsikko data =
 
 listAndAverageAndMax : List Int -> List (Html Msg)
 listAndAverageAndMax data =
-    listTapot data ++ liAverage data ++ liMax data ++ liMin data
+    listTapot data ++ liAverage data ++ liMaxElem data ++ liMinElem data
 
 
 listTapot : List Int -> List (Html Msg)
@@ -279,15 +345,15 @@ listTapot tapot =
     List.map tappoElem tapot
 
 
-liMax : List Int -> List (Html Msg)
-liMax data =
+liMaxElem : List Int -> List (Html Msg)
+liMaxElem data =
     [ text "Max:"
     , li [] [ text <| String.fromInt <| ListUtil.max data ]
     ]
 
 
-liMin : List Int -> List (Html Msg)
-liMin data =
+liMinElem : List Int -> List (Html Msg)
+liMinElem data =
     [ text "Min:"
     , li [] [ text <| String.fromInt <| ListUtil.min data ]
     ]
@@ -317,3 +383,12 @@ main =
         , update = update
         , subscriptions = always Sub.none
         }
+
+
+exampleData : String
+exampleData =
+    """
+        { "slerbatron33#4084536":{"vormi":"EI OO VORMIA","tapot":[14,5,17,12,4,3,3,15,14,7,12,1,15,14,7,10,7,13],"kuolemat":[1,3,2,2,2,2,3,2,2,3,1,2,1,2,1,4,2,8],"damaget":[5616,2682,6404,4742,1299,1263,772,5323,6022,2777,5162,457,7273,4741,2736,4081,2618,3621],"otetut":[817,761,1172,492,492,356,756,731,1005,844,605,370,627,320,202,1347,813,1714],"gulagKills":[0,0,1,0,1,1,0,1,1,0,1,1,0,0,0,1,1,0],"gulagDeaths":[0,1,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,0],"mode":["br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brduos","br_brtrios","br_rebirth_rbrthtrios","br_brtrios","br_brtrios","br_brtrios","br_brduos","br_brtrios","br_brtrios","br_brtrios","br_dmz_plnbld"],"defaultUser":"slerbatron33#4084536"}
+        , "hojozza#2398418"     :{"vormi":"EI OO VORMIA","tapot":[7,0,1,6,9,8,0,3,2,10,2,1,3,4,1,2,1,7,6,5],"kuolemat":[1,2,2,2,1,2,2,2,3,2,3,1,6,5,3,1,2,2,4,2],"damaget":[2773,493,745,2375,2066,3008,282,1721,1838,3339,951,293,1926,1525,509,1304,276,2655,2302,1992],"otetut":[791,351,547,449,186,655,774,688,908,758,1023,265,850,1413,776,341,557,715,1096,597],"gulagKills":[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],"gulagDeaths":[0,1,1,1,0,1,1,1,1,1,1,0,0,0,1,0,1,1,1,0],"mode":["br_brtrios","br_brtrios","br_brtrios","br_brbbquad","br_dmz_plnbld","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_dmz_plnbld","br_dmz_plnbld","br_brtrios","br_brbbquad","br_brbbquad","br_brbbquad","br_brbbquad","br_brduos"],"defaultUser":"slerbatron33#4084536"}
+        }
+    """

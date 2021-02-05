@@ -1,7 +1,5 @@
-const API = require("call-of-duty-api")({ platform: "psn" });
-
-import { password, targetPlatform, targetPSN, username } from "./constants";
-import { IAvailableUsers, WZData, WZMatch } from "./interfaces";
+import { password, targetPlatform, username } from "./constants";
+import { WZData, WZMatch } from "./interfaces";
 
 const roundToTwo = (num: number): number => {
   return +num.toFixed(2);
@@ -19,27 +17,40 @@ const countAverage = (lista: number[]) => {
   );
 };
 
-export const fetchWZData = async (target: string): Promise<WZData> => {
+export const fetchWZData = async (
+  target: string,
+  API: any
+): Promise<WZData> => {
   await API.login(username, password);
   console.log("Target", target);
 
-  return await API.MWcombatwz(target, targetPlatform);
+  return API.MWcombatwz(target, targetPlatform);
+};
+const list = [1, 2, 3, 4, 5]; //...an array filled with values
+
+const asyncFetchWZDataAndFormat = async (
+  user: string,
+  API: any
+): Promise<NimettyPalautettava> => {
+  return fetchWZData(user, API).then((data) => {
+    return { user, data: fetchSlerba(data) };
+  });
+};
+
+export const fetchAll = async (arrayOfUsers: string[], API: any) => {
+  return Promise.all(
+    arrayOfUsers.map((user) => asyncFetchWZDataAndFormat(user, API))
+  );
 };
 
 const playedMatch = (match: WZMatch) =>
   !(match.playerStats.kills == 0 && match.playerStats.deaths == 0);
 
 const valueOrZero = (value: number) => (value ? value : 0);
-const maxOneOrZero = (value: number) => {
-  const retVal = value > 1 ? 1 : valueOrZero(value);
-  console.log("val:", value, "ret:", retVal);
-  return retVal;
-};
+const maxOneOrZero = (value: number) => (value > 1 ? 1 : valueOrZero(value));
 
-export const fetchSlerba = (data: WZData, target: string) => {
+export const fetchSlerba = (data: WZData): IPalautettava => {
   const matches = data.matches.filter(playedMatch).slice();
-
-  console.log(Object.keys(data.summary));
 
   const tapot: number[] = matches.map((match) =>
     valueOrZero(match.playerStats.kills)
@@ -72,14 +83,26 @@ export const fetchSlerba = (data: WZData, target: string) => {
     vormi: keskiarvo >= 10 ? "ON VORMI" : "EI OO VORMIA",
     tapot,
     kuolemat,
-    keskiarvo,
-    kd,
     damaget,
     otetut,
     gulagKills,
     gulagDeaths,
     mode,
-    user: target,
-    defaultUser: targetPSN,
   };
 };
+
+interface IPalautettava {
+  vormi: string;
+  tapot: number[];
+  kuolemat: number[];
+  damaget: number[];
+  otetut: number[];
+  gulagKills: number[];
+  gulagDeaths: number[];
+  mode: string[];
+}
+
+interface NimettyPalautettava {
+  user: string;
+  data: IPalautettava;
+}

@@ -57,6 +57,8 @@ export enum AvailableUsersValue {
   Kupperi = "kupperi#3370706",
 }
 
+export const Karmivat = Object.values(AvailableUsersValue);
+
 export enum Mode {
   Solos = "br_brsolos",
   Duos = "br_brduos",
