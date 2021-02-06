@@ -51,7 +51,7 @@ export type IAvailableUsers =
   | undefined;
 
 export enum AvailableUsersValue {
-  Slerba = "slerbatron33#4084536",
+  Slerba = "rekyylireijo33#5266178",
   Kyntö = "kyntö#1293018",
   Hojo = "hojozza#2398418",
   Kupperi = "kupperi#3370706",
