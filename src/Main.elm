@@ -24,6 +24,7 @@ import Users exposing (Status(..), User, users)
 type alias Model =
     { allData : WebData WZDataDict
     , activeUser : User
+    , fetching : Bool
     }
 
 
@@ -39,8 +40,10 @@ initialModel =
         (User
             ""
             ""
+            ""
             NotFetched
         )
+        True
 
 
 initialDict : Dict String (WebData WZData)
@@ -63,10 +66,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FetchMoreData ->
-            ( model, callFunctionAllUsers users )
+            ( { model | fetching = True }, callFunctionAllUsers users )
 
         FetchAllDataResponse newAllData ->
-            ( { model | allData = newAllData }, Cmd.none )
+            ( { model | allData = newAllData, fetching = False }, Cmd.none )
 
         ChangeActive newUser ->
             ( { model | activeUser = newUser }, Cmd.none )
@@ -143,7 +146,7 @@ view model =
         RemoteData.NotAsked ->
             div []
                 [ headerSelection model.activeUser
-                , text <| "Initialising " ++ model.activeUser.short ++ "."
+                , div [ class "initializediv" ] [ text <| "Initialising " ++ model.activeUser.short ++ "..." ]
                 ]
 
         RemoteData.Loading ->
@@ -158,10 +161,10 @@ view model =
         RemoteData.Success wzDataDict ->
             case Dict.get model.activeUser.user wzDataDict of
                 Maybe.Nothing ->
-                    text "Error"
+                    text "Error, active user not found in dict"
 
                 Just wzData ->
-                    page wzData model.activeUser
+                    page wzData model.activeUser model
 
 
 errorToString : Http.Error -> String
@@ -222,15 +225,17 @@ gulagSuccessString eka toka =
         String.fromInt sum ++ "/" ++ String.fromInt tot
 
 
-page : WZData -> User -> Html Msg
-page wzData activeUser =
+page : WZData -> User -> Model -> Html Msg
+page wzData activeUser model =
     div []
         [ headerSelection activeUser
-        , upperData wzData
-        , br [] []
-        , dataTaulukko wzData
-        , br [] []
-        , button [ onClick FetchMoreData ] [ text "Päivitä" ]
+        , div [ classList [ ( "initializediv", model.fetching ) ] ]
+            [ upperData wzData
+            , br [] []
+            , dataTaulukko wzData
+            , br [] []
+            , button [ onClick FetchMoreData ] [ text "Päivitä" ]
+            ]
         ]
 
 

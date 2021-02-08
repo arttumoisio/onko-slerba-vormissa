@@ -1,5 +1,5 @@
 import { password, targetPlatform, username } from "../../constants/constants";
-import { WZData, WZMatch } from "./interfaces";
+import { WZData, WZMatch, IPalautettava } from "./interfaces";
 
 const roundToTwo = (num: number): number => {
   return +num.toFixed(2);
@@ -25,22 +25,6 @@ export const fetchWZData = async (
   console.log("Target", target);
 
   return API.MWcombatwz(target, targetPlatform);
-};
-const list = [1, 2, 3, 4, 5]; //...an array filled with values
-
-const asyncFetchWZDataAndFormat = async (
-  user: string,
-  API: any
-): Promise<NimettyPalautettava> => {
-  return fetchWZData(user, API).then((data) => {
-    return { user, data: fetchSlerba(data) };
-  });
-};
-
-export const fetchAll = async (arrayOfUsers: string[], API: any) => {
-  return Promise.all(
-    arrayOfUsers.map((user) => asyncFetchWZDataAndFormat(user, API))
-  );
 };
 
 const playedMatch = (match: WZMatch) =>
@@ -90,19 +74,3 @@ export const fetchSlerba = (data: WZData): IPalautettava => {
     mode,
   };
 };
-
-interface IPalautettava {
-  vormi: string;
-  tapot: number[];
-  kuolemat: number[];
-  damaget: number[];
-  otetut: number[];
-  gulagKills: number[];
-  gulagDeaths: number[];
-  mode: string[];
-}
-
-interface NimettyPalautettava {
-  user: string;
-  data: IPalautettava;
-}

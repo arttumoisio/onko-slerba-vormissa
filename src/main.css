@@ -48,3 +48,13 @@ img {
   background-color: lightgray;
   color: rgba(0, 0, 0, 0.93);
 }
+
+.initializediv {
+  animation: blinker 2s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}

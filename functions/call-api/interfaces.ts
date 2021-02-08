@@ -93,3 +93,18 @@ export interface WZbrMissionStats {
   totalMissionWeaponXpEarned: number;
   missionStatsByType: {};
 }
+export interface IPalautettava {
+  vormi: string;
+  tapot: number[];
+  kuolemat: number[];
+  damaget: number[];
+  otetut: number[];
+  gulagKills: number[];
+  gulagDeaths: number[];
+  mode: string[];
+}
+
+export interface NimettyPalautettava {
+  user: string;
+  data: IPalautettava;
+}
