@@ -94,7 +94,6 @@ export interface WZbrMissionStats {
   missionStatsByType: {};
 }
 export interface IPalautettava {
-  vormi: string;
   tapot: number[];
   kuolemat: number[];
   damaget: number[];
@@ -102,6 +101,9 @@ export interface IPalautettava {
   gulagKills: number[];
   gulagDeaths: number[];
   mode: string[];
+  start: number[];
+  end: number[];
+  time: number[];
 }
 
 export interface NimettyPalautettava {

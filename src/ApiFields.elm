@@ -8,8 +8,7 @@ type alias WZDataDict =
 
 
 type alias WZData =
-    { vormi : String
-    , tapot : List Int
+    { tapot : List Int
     , kuolemat : List Int
     , damaget : List Int
     , otetut : List Int
@@ -21,7 +20,7 @@ type alias WZData =
 
 constWZData : WZData
 constWZData =
-    WZData "" [] [] [] [] [] [] []
+    WZData [] [] [] [] [] [] []
 
 
 constWZDataDict : WZDataDict

@@ -1,4 +1,4 @@
-import { storeSlerba } from "../redisUtil/storeSlerba";
+import { storeSlerba } from "../redisUtil/storeRedisSlerba";
 import { fetchSlerba, fetchWZData } from "./fetchSlerba";
 import { NimettyPalautettava } from "./interfaces";
 

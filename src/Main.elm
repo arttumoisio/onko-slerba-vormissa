@@ -126,7 +126,6 @@ decodeWZDataDict =
 decodeWZData : Decoder WZData
 decodeWZData =
     Decode.succeed WZData
-        |> required constFields.vormi string
         |> required constFields.tapot (list int)
         |> required constFields.kuolemat (list int)
         |> required constFields.damaget (list int)
@@ -278,7 +277,12 @@ upperData : WZData -> Html Msg
 upperData wzData =
     div []
         [ textBlock "Vormi: "
-        , textBlock wzData.vormi
+        , textBlock <|
+            if ListUtil.average wzData.tapot >= 10.0 then
+                "ON VORMI"
+
+            else
+                "EI OO VORMIA"
         , textBlock <| "Viimeisten " ++ ListUtil.lenToString wzData.gulagDeaths ++ " pelin statsit:"
         , roundedAverageElem wzData.tapot
         , roundedKDElem wzData.tapot wzData.kuolemat

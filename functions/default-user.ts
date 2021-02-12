@@ -1,8 +1,11 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { headers } from "./call-api/headers";
 import { targetPSN } from "../constants/constants";
+import { run } from "./mongoUtil/storeMongoSlerba";
 
 export const handler = async (_event: APIGatewayEvent, _context: Context) => {
+  run();
+
   try {
     return {
       statusCode: 200,

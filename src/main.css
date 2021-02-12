@@ -34,14 +34,18 @@ img {
 
 .selection {
   display: flex;
+  position: sticky;
+  top: 0;
   justify-content:space-around;
   flex-wrap: wrap;
   margin-bottom: 10px;
+  background-color: rgba(0, 0, 0, 0.93);
 }
 
 .selectionElem {
   flex-grow: 1;
   line-height: 3rem;
+  
 }
 
 .activeUser {

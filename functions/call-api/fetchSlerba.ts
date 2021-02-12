@@ -39,7 +39,6 @@ export const fetchSlerba = (data: WZData): IPalautettava => {
   const tapot: number[] = matches.map((match) =>
     valueOrZero(match.playerStats.kills)
   );
-  const keskiarvo: number = countAverage(tapot);
 
   const kuolemat: number[] = matches.map((match) =>
     valueOrZero(match.playerStats.deaths)
@@ -62,9 +61,13 @@ export const fetchSlerba = (data: WZData): IPalautettava => {
   );
 
   const mode: string[] = matches.map((match) => match.mode);
+  const start: number[] = matches.map((match) => match.utcStartSeconds);
+  const end: number[] = matches.map((match) => match.utcEndSeconds);
+  const time: number[] = matches.map(
+    (match) => match.utcEndSeconds - match.utcStartSeconds
+  );
 
   return {
-    vormi: keskiarvo >= 10 ? "ON VORMI" : "EI OO VORMIA",
     tapot,
     kuolemat,
     damaget,
@@ -72,5 +75,8 @@ export const fetchSlerba = (data: WZData): IPalautettava => {
     gulagKills,
     gulagDeaths,
     mode,
+    start,
+    end,
+    time,
   };
 };
