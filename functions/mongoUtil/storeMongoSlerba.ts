@@ -17,6 +17,7 @@ const client = new MongoClient(url, { useNewUrlParser: true });
 export const run = async () => {
   try {
     await client.connect((err) => {
+      if (err) throw err;
       const collection = client.db(MONGO_DBNAME).collection("devices");
       console.log(collection);
 
