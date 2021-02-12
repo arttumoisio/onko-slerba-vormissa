@@ -4,7 +4,7 @@ import { targetPSN } from "../constants/constants";
 import { run } from "./mongoUtil/storeMongoSlerba";
 
 export const handler = async (_event: APIGatewayEvent, _context: Context) => {
-  run();
+  process.env.MONGO_URL && run();
 
   try {
     return {
