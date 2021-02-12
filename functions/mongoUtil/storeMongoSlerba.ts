@@ -24,6 +24,8 @@ export const run = async () => {
     });
     console.log("Connected correctly to server");
   } catch (err) {
+    console.log("error");
+
     console.log(err.stack);
   } finally {
     await client.close();
