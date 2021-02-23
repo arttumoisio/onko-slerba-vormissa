@@ -7,8 +7,13 @@ const asyncFetchWZDataAndFormat = async (
   API: any
 ): Promise<NimettyPalautettava> => {
   return fetchWZData(user, API).then((data) => {
+    console.log("Fetching", user);
     const returnObject = { user, data: fetchSlerba(data) };
+    console.log("storing", user);
+
     storeSlerba(returnObject);
+    console.log("Returning", user);
+
     return returnObject;
   });
 };
