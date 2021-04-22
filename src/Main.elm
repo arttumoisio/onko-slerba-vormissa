@@ -40,7 +40,6 @@ initialModel =
         (User
             ""
             ""
-            ""
             NotFetched
         )
         True
