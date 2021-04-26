@@ -195,14 +195,14 @@ textBlock string =
     div [] [ text string ]
 
 
-precentageOfTwoLists : List Int -> List Int -> String
-precentageOfTwoLists eka toka =
+precentageOfTwoLists : List Int -> String
+precentageOfTwoLists eka =
     let
         sum =
             toFloat <| List.sum eka
 
         tot =
-            toFloat <| List.sum eka + List.sum toka
+            toFloat <| List.length eka
     in
     Round.round 1 (100 * sum / tot)
 
@@ -286,7 +286,7 @@ upperData wzData =
         , roundedAverageElem wzData.tapot
         , roundedKDElem wzData.tapot wzData.kuolemat
         , textBlock <| " Gulagit: " ++ gulagSuccessString wzData.gulagKills wzData.gulagDeaths
-        , textBlock <| " Gulag-%: " ++ precentageOfTwoLists wzData.gulagKills wzData.gulagDeaths
+        , textBlock <| " Gulag-%: " ++ precentageOfTwoLists wzData.gulagKills
         ]
 
 
