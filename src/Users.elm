@@ -13,8 +13,8 @@ type alias User =
 users : List User
 users =
     [ 
+      {short = "RekyyliReijo", user = "nepagell", fetched = NotFetched }
     , { short = "AnaaliFisti", user = "mouqq", fetched = NotFetched }
-    ,  {short = "RekyyliReijo", user = "nepagell", fetched = NotFetched }
     -- , { short = "Kupperi", user = "kupperi", fetched = NotFetched }
     -- , { short = "Juutalaine", user = "Pageli", fetched = NotFetched }
     -- , { short = "Hojo", user = "hojozza", fetched = NotFetched }
