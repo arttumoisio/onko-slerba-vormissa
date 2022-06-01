@@ -1,3 +1,3 @@
 module.exports = {
-    proxy: "http://localhost:61912"
-}
+  proxy: "http://localhost:34567",
+};

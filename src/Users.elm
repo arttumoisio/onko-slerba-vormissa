@@ -12,9 +12,10 @@ type alias User =
 
 users : List User
 users =
-    [ { short = "Kyntö", user = "mouqq", fetched = NotFetched }
-    , { short = "Slerba", user = "nepagell", fetched = NotFetched }
-    , { short = "Juutalaine", user = "Pageli", fetched = NotFetched }
-    , { short = "Hojo", user = "hojozza", fetched = NotFetched }
-    , { short = "Kupperi", user = "kupperi", fetched = NotFetched }
+    [ { short = "Kupperi", user = "kupperi", fetched = NotFetched }
+
+    -- , { short = "Kyntö", user = "mouqq", fetched = NotFetched }
+    -- , { short = "Slerba", user = "nepagell", fetched = NotFetched }
+    -- , { short = "Juutalaine", user = "Pageli", fetched = NotFetched }
+    -- , { short = "Hojo", user = "hojozza", fetched = NotFetched }
     ]
